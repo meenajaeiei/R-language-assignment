@@ -1,0 +1,98 @@
+---
+Author: "Passakorn cheavrpanich 59070118"
+output: html_document
+---
+
+
+## R Markdown
+
+```{r}
+library(fivethirtyeight)
+library(tidyverse)
+library(dplyr)
+
+```
+
+```{r}
+glimpse(police_deaths)
+```
+
+
+
+query cause_of_death of K9
+
+
+
+
+```{r}
+
+
+cause_of_death_human_cop <- police_deaths %>% filter(canine == FALSE) %>% group_by(cause_of_death) %>% summarise(cop_death = n()) %>% mutate(percentage = cop_death / sum(cop_death)*100) %>% arrange(-cop_death)  %>% head(10)
+
+cause_of_death_human_cop
+  
+
+
+```
+
+
+show as graph
+
+```{r}
+zz <- ggplot(cause_of_death_human_cop , 
+  aes( x = reorder(cause_of_death,+cop_death), 
+       y = cop_death )) +
+  geom_col(fill="pink",col="black") +
+  coord_flip()+
+  geom_text(aes(y = cop_death+800, 
+            label= sprintf("%3.2f%%", percentage) ), 
+            size = 4)+
+  labs(x="cause of death",
+       y="US police killed",
+       title="Top 10 US police's cause of death", adj = -1)
+zz
+```
+
+
+
+
+
+
+```{r}
+cause_of_death_state <- police_deaths %>% filter(cause_of_death == 'Gunfire' , canine == FALSE) %>% group_by(state) %>% summarise(US_police=n()) %>% arrange(desc(US_police))
+cause_of_death_state
+```
+
+
+
+```{r}
+plot2 = ggplot(cause_of_death_state %>% head(10),
+  aes( x = reorder(state,+US_police), y = US_police )) +
+  geom_col(fill="green",col="black") +
+  coord_flip()+
+    labs(x="US state",
+         y="US police killed",
+         title="Police was killed by Gunfire"  )
+
+plot2
+```
+
+
+show police was killed in past 100 years
+```{r}
+cause_of_death_year <- police_deaths %>% filter(cause_of_death  == 'Gunfire' , year > 1899 , canine == FALSE) %>%
+  group_by(year) %>% summarise(death = n())
+
+cause_of_death_year
+
+```
+
+
+```{r}
+
+g <- ggplot(cause_of_death_year , aes(year, death)) + 
+  geom_point(col="tomato3" , size = 2)
+
+g
+```
+
